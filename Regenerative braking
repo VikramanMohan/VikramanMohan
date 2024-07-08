@@ -1,0 +1,87 @@
+- 👋 Hi, I’m @VikramanMohan
+- 👀 I’m interested in ...
+- 🌱 I’m currently learning ...
+- 💞️ I’m looking to collaborate on ...
+- 📫 How to reach me ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+
+<!---
+VikramanMohan/VikramanMohan is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+You can click the Preview link to take a look at your changes.
+--->
+SOURCE CODE
+Program For Atmega328p Microcontroller
+
+#include <LiquidCrystal.h>
+#include <SoftwareSerial.h>
+
+// initialize the LCD display with the appropriate pin numbers
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+// initialize the IR sensor and voltage measurement pins
+int irSensorPin = 8;
+int voltagePin = A0;
+
+// initialize the count variable to keep track of the number of state changes
+int RBCount = 0;
+
+// initialize the current and previous state variables for the IR sensor
+int currentState = LOW;
+int previousState = LOW;
+
+// initialize the SoftwareSerial object for Bluetooth communication
+SoftwareSerial bluetooth(0, 1); // RX, TX
+
+void setup() {
+  // set up the LCD display
+  lcd.begin(16, 2);
+ 
+  // set up the IR sensor and voltage measurement pins
+  pinMode(irSensorPin, INPUT);
+  pinMode(voltagePin, INPUT);
+ 
+  // set up Bluetooth communication
+  bluetooth.begin(9600);
+ 
+  // print the initial count value to the LCD display
+  lcd.print("RB Count: ");
+  lcd.print(RBCount);
+}
+
+void loop() {
+  // read the current state of the IR sensor pin
+  currentState = digitalRead(irSensorPin);
+ 
+  // if the state has changed from LOW to HIGH, increment the count
+  if (currentState == HIGH && previousState == LOW) {
+    RBCount++;
+    lcd.setCursor(10, 0);
+    lcd.print(RBCount); // update the count on the LCD display
+  }
+ 
+  // update the previous state to the current state
+  previousState = currentState;
+
+  // read the voltage value from the voltage measurement pin and convert it to volts
+  int voltageRaw = analogRead(voltagePin);
+  float voltage = (voltageRaw / 1023.0) * 5.0; // assuming a 5V reference voltage
+ 
+  // convert the voltage to a percentage and print it to the LCD display
+  float voltagePercentage = (voltage / 5.0) * 100.0;
+  lcd.setCursor(0, 1);
+  lcd.print("Voltage: ");
+  lcd.print(voltage);
+  lcd.print("V ");
+  lcd.print(voltagePercentage);
+  lcd.print("%");
+ 
+  // send the RB count, voltage value, and voltage percentage over Bluetooth
+  bluetooth.print("RB Count: ");
+  bluetooth.println(RBCount);
+  bluetooth.print("Voltage: ");
+  bluetooth.print(voltage);
+  bluetooth.print("V ");
+  bluetooth.print(voltagePercentage);
+  bluetooth.println("%");
+}
